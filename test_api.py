@@ -1,27 +1,59 @@
 import json
 import requests
 
-# 馬會足球即時賠率數據核心接口 (JSON 格式)
-url = "https://bet.hkjc.com/football/getJSON.aspx?type=odds_had"
+url = "https://info.cld.hkjc.com/graphql/base/"
+
+# 馬會官方前端獲取足球賽事與賠率的標準 GraphQL Query
+payload = {
+    "operationName": "allMatchList",
+    "query": """
+    query allMatchList {
+      matches(product: "football") {
+        matchId
+        matchDate
+        matchNum
+        homeTeam {
+          teamName
+        }
+        awayTeam {
+          teamName
+        }
+        foPools {
+          id
+          status
+          pools {
+            id
+            status
+            results {
+              result
+            }
+          }
+        }
+      }
+    }
+    """,
+}
 
 headers = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
         " like Gecko) Chrome/124.0.0.0 Safari/537.36"
     ),
-    "Accept": "application/json, text/javascript, */*; q=0.01",
-    "Referer": "https://bet.hkjc.com/football/index.aspx",
+    "Content-Type": "application/json",
+    "Accept": "application/json, text/plain, */*",
+    "Origin": "https://bet.hkjc.com",
+    "Referer": "https://bet.hkjc.com/",
 }
 
 try:
-    print("⏳ 正在連線馬會足球賠率 JSON 接口...")
-    response = requests.get(url, headers=headers, timeout=10)
+    print("⏳ 正在透過 GraphQL 獲取馬會足球賠率與賽事數據...")
+    response = requests.post(url, json=payload, headers=headers, timeout=10)
     print(f"📡 HTTP 狀態碼: {response.status_code}")
 
     if response.status_code == 200:
-        raw_text = response.text.strip()
-        print("🎉 成功取得回應！內容前 400 字如下：")
-        print(raw_text[:400])
+        data = response.json()
+        print("🎉 成功取得足球賽事與賠率 JSON 數據！內容範例：")
+        print(json.dumps(data, indent=2, ensure_ascii=False)[:800])
     else:
         print(f"❌ 請求失敗，回應內容: {response.text[:200]}")
 
