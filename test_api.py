@@ -3,17 +3,14 @@ import requests
 
 url = "https://info.cld.hkjc.com/graphql/base/"
 
+# 最新修正版：符合馬會 GraphQL Schema 的 Payload
 payload = {
-    "operationName": "racing",
+    "operationName": "raceMeetings",
     "query": """
-    query racing {
-      raceMeetings(find: {status: "UPCOMING"}, limit: 1) {
+    query raceMeetings {
+      raceMeetings(find: {status: "UPCOMING"}) {
         date
         venueCode
-        races {
-          raceNo
-          status
-        }
       }
     }
     """,
@@ -34,8 +31,8 @@ try:
 
     if response.status_code == 200:
         data = response.json()
-        print("✅ 成功取得馬會 JSON 數據！結構範例如下：")
-        print(json.dumps(data, indent=2, ensure_ascii=False)[:300])
+        print("✅ 成功取得馬會 JSON 數據！回應內容如下：")
+        print(json.dumps(data, indent=2, ensure_ascii=False))
     else:
         print(f"❌ 請求失敗，回應內容: {response.text}")
 except Exception as e:
