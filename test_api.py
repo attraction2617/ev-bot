@@ -1,35 +1,21 @@
 import json
 import requests
 
-url = "https://info.cld.hkjc.com/graphql/base/"
-
-# 馬會現行標準 GraphQL Query (針對排位賽事)
-payload = {
-    "operationName": "raceMeetings",
-    "query": """
-    query raceMeetings {
-      raceMeetings {
-        date
-        venueCode
-        status
-      }
-    }
-    """,
-}
+# 馬會官方公開的賽事賠率 / 賽程 REST API (無 GraphQL 白名單限制)
+url = "https://bet.hkjc.com/racing/getJSON.aspx?type=winplaodds&date=latest"
 
 headers = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
         " like Gecko) Chrome/122.0.0.0 Safari/537.36"
     ),
-    "Content-Type": "application/json",
-    "Origin": "https://racing.hkjc.com",
-    "Referer": "https://racing.hkjc.com/",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Referer": "https://bet.hkjc.com/racing/",
 }
 
 try:
-    print("⏳ 正在嘗試連線馬會 GraphQL API...")
-    response = requests.post(url, json=payload, headers=headers, timeout=10)
+    print("⏳ 正在嘗試連線馬會 REST API...")
+    response = requests.get(url, headers=headers, timeout=10)
     print(f"📡 HTTP 狀態碼: {response.status_code}")
 
     if response.status_code == 200:
