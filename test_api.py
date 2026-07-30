@@ -3,18 +3,14 @@ import requests
 
 url = "https://info.cld.hkjc.com/graphql/base/"
 
-# 馬會新版官網獨贏 (WIN) & 位置 (PLA) 賠率專用 Query
+# 最簡化且符合馬會最新 Schema 的 Query
 payload = {
     "operationName": "raceMeetings",
     "query": """
     query raceMeetings {
-      raceMeetings(find: {status: "UPCOMING"}) {
+      raceMeetings {
         date
         venueCode
-        races {
-          raceNo
-          status
-        }
       }
     }
     """,
