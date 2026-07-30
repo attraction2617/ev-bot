@@ -1,0 +1,24 @@
+name: Test HKJC Connection
+
+on:
+  workflow_dispatch: # 允許我們在 GitHub 網頁按按鈕手動觸發
+
+jobs:
+  test-hkjc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/checkout@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run test script
+        run: |
+          python test_api.py
