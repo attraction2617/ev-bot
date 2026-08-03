@@ -1,60 +1,37 @@
-import json
 import requests
 
-# 建立一個 Session 物件，用來自動保存馬會發給我們的 Cookies
-session = requests.Session()
+# 你的專屬金鑰
+TELEGRAM_BOT_TOKEN = "8960910029:AAHqYWwICbrcSAj4a-rFSkldpUWWeGyQmSk"
+TELEGRAM_CHAT_ID = "1360322970"
+ODDS_API_KEY = "e75ff8b4a75f6755f6e583ff19d30500"
 
-# 模擬正規瀏覽器的 Headers
-session.headers.update(
-    {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
-            " like Gecko) Chrome/124.0.0.0 Safari/537.36"
-        ),
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/plain, */*",
-        "Origin": "https://bet.hkjc.com",
-        "Referer": "https://bet.hkjc.com/football/index.aspx",
-    }
-)
-
-url = "https://info.cld.hkjc.com/graphql/base/"
-
-# 馬會標準的足球賽事與賠率查詢 Query
+print("正在測試 Telegram Bot...")
+url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 payload = {
-    "operationName": "matches",
-    "query": """
-    query matches {
-      matches(product: "football") {
-        matchId
-        matchDate
-        homeTeam {
-          teamName
-        }
-        awayTeam {
-          teamName
-        }
-      }
-    }
-    """,
+    "chat_id": TELEGRAM_CHAT_ID,
+    "text": "🟢 測試成功！雷達已經可以順利呼叫你的 Telegram。",
+    "parse_mode": "Markdown",
 }
+res = requests.post(url, json=payload)
+if res.ok:
+  print("✅ Telegram 測試成功！請檢查手機有沒有收到訊息。")
+else:
+  print(f"❌ Telegram 測試失敗: {res.text}")
 
-try:
-    print("⏳ 正在透過 Session 連線馬會 GraphQL 總部...")
+print("\n正在測試 The Odds API...")
+# 測試抓取英超賽事
+api_url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={ODDS_API_KEY}&regions=pinnacle&markets=h2h"
+res_odds = requests.get(api_url)
 
-    # 步驟 1：先訪問主頁拿到 Cookie 授權
-    session.get("https://bet.hkjc.com/football/index.aspx", timeout=10)
-
-    # 步驟 2：帶著 Cookie 發送 GraphQL POST 請求
-    response = session.post(url, json=payload, timeout=10)
-    print(f"📡 HTTP 狀態碼: {response.status_code}")
-
-    if response.status_code == 200:
-        data = response.json()
-        print("🎉 成功取得數據！內容如下：")
-        print(json.dumps(data, indent=2, ensure_ascii=False)[:600])
-    else:
-        print(f"❌ 請求失敗，回應內容: {response.text[:200]}")
-
-except Exception as e:
-    print(f"💥 發生連線異常: {e}")
+if res_odds.status_code == 200:
+  data = res_odds.json()
+  print(
+      f"✅ The Odds API 測試成功！目前英超可抓取的賽事數量: {len(data)} 場"
+  )
+  if len(data) > 0:
+    print(f"   範例比賽: {data[0]['home_team']} vs {data[0]['away_team']}")
+else:
+  print(
+      f"❌ The Odds API 測試失敗 (Status {res_odds.status_code}):"
+      f" {res_odds.text}"
+  )
