@@ -1,6 +1,5 @@
 import requests
 
-# 你的專屬金鑰
 TELEGRAM_BOT_TOKEN = "8960910029:AAHqYWwICbrcSAj4a-rFSkldpUWWeGyQmSk"
 TELEGRAM_CHAT_ID = "1360322970"
 ODDS_API_KEY = "e75ff8b4a75f6755f6e583ff19d30500"
@@ -19,8 +18,8 @@ else:
   print(f"❌ Telegram 測試失敗: {res.text}")
 
 print("\n正在測試 The Odds API...")
-# 測試抓取英超賽事
-api_url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={ODDS_API_KEY}&regions=pinnacle&markets=h2h"
+# 修正：將 regions 改為 eu (歐洲區，包含 Pinnacle)
+api_url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={ODDS_API_KEY}&regions=eu&markets=h2h&oddsFormat=decimal"
 res_odds = requests.get(api_url)
 
 if res_odds.status_code == 200:
@@ -30,6 +29,8 @@ if res_odds.status_code == 200:
   )
   if len(data) > 0:
     print(f"   範例比賽: {data[0]['home_team']} vs {data[0]['away_team']}")
+  else:
+    print("   (目前這段時間可能沒有英超賽事，但 API 連線與授權完全正常！)")
 else:
   print(
       f"❌ The Odds API 測試失敗 (Status {res_odds.status_code}):"
